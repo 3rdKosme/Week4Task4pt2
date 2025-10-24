@@ -1,0 +1,61 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    user: root
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Passw0rd123KORAN!"
+      MSSQL_PID: Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    command: >
+      /bin/bash -c "
+        chown -R mssql:mssql /var/opt/mssql &&
+        chmod -R 755 /var/opt/mssql &&
+        exec /opt/mssql/bin/sqlservr
+      "
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'Passw0rd123KORAN!' -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  init-db:
+    image: mcr.microsoft.com/mssql-tools
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SA_PASSWORD: "Passw0rd123KORAN!"
+    volumes:
+      - ./init-sql:/scripts:ro
+    command: >
+      /bin/bash -c "
+        echo 'Waiting for SQL Server to be fully ready...' &&
+        sleep 10 &&
+        echo 'Creating database...' &&
+        /opt/mssql-tools/bin/sqlcmd -S db -U sa -P 'Passw0rd123KORAN!' -Q 'CREATE DATABASE Innowise;' &&
+        echo 'Database created successfully!' &&
+        echo 'Running init script...' &&
+        /opt/mssql-tools/bin/sqlcmd -S db -U sa -P 'Passw0rd123KORAN!' -d Innowise -i /scripts/init.sql &&
+        echo 'Initialization completed successfully!'
+      "
+  verify-db:
+    image: mcr.microsoft.com/mssql-tools
+    depends_on:
+      init-db:
+        condition: service_completed_successfully
+    command: >
+      /bin/bash -c "
+        echo '==== Checking databases ====' &&
+        /opt/mssql-tools/bin/sqlcmd -S db -U sa -P 'Passw0rd123KORAN!' -Q 'SELECT name FROM sys.databases' &&
+        echo '==== Checking tables in Innowise ====' &&
+        /opt/mssql-tools/bin/sqlcmd -S db -U sa -P 'Passw0rd123KORAN!' -d Innowise -Q 'SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES' &&
+        echo '==== Verification completed! ===='
+      "
+
+volumes:
+  mssql_data:
