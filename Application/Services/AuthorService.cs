@@ -9,18 +9,18 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
 {
     private readonly IAuthorRepository _authorRepository = authorRepository;
 
-    public IEnumerable<Author> GetAllAuthors()
+    public async Task<IEnumerable<Author>> GetAllAuthorsAsync()
     {
-        return _authorRepository.GetAll();
+        return await _authorRepository.GetAllAsync();
     }
 
-    public Author? GetAuthorById(int id)
+    public async Task<Author?> GetAuthorByIdAsync(int id)
     {
         ValidationHelper.CheckId(id);
-        return _authorRepository.GetById(id);
+        return await _authorRepository.GetByIdAsync(id);
     }
 
-    public int AddAuthor(CreateAuthorDTO dto)
+    public async Task<int> AddAuthorAsync(CreateAuthorDTO dto)
     {
         CheckDateOfBirth((DateOnly)dto.DateOfBirth);
         var author = new Author
@@ -28,18 +28,15 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
             Name = dto.Name,
             DateOfBirth = dto.DateOfBirth
         };
-        return _authorRepository.Create(author);
+        return await _authorRepository.CreateAsync(author);
     }
 
-    public bool UpdateAuthor(UpdateAuthorDTO dto, int id)
+    public async Task<bool> UpdateAuthorAsync(UpdateAuthorDTO dto, int id)
     {
-        var existingAuthor = _authorRepository.GetById(id);
+        var existingAuthor = await _authorRepository.GetByIdAsync(id) 
+            ?? throw new ArgumentNullException($"Автора с ID = {id} не существует.");
 
-        if (existingAuthor == null) {
-            throw new ArgumentNullException($"Автора с ID = {id} не существует.");
-        }
-
-        if(dto.Name is not null)
+        if (dto.Name is not null)
         {
             existingAuthor.Name = dto.Name;
         }
@@ -50,16 +47,16 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
             existingAuthor.DateOfBirth = (DateOnly)dto.DateOfBirth;
         }
 
-        return _authorRepository.Update(existingAuthor);
+        return await _authorRepository.UpdateAsync(existingAuthor);
     }
 
-    public bool DeleteAuthor(int id)
+    public async Task<bool> DeleteAuthorAsync(int id)
     {
         ValidationHelper.CheckId(id);
-        return _authorRepository.Delete(id);
+        return await _authorRepository.DeleteAsync(id);
     }
 
-    private void CheckDateOfBirth(DateOnly dateOfBirth)
+    private static void CheckDateOfBirth(DateOnly dateOfBirth)
     {
         var minDate = new DateOnly(0001, 1, 1);
 

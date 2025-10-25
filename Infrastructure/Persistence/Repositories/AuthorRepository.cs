@@ -1,49 +1,48 @@
 using Week4Task4pt2.Domain.Models;
 using Week4Task4pt2.Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Week4Task4pt2.Infrastructure.Persistence.Repositories;
 
-public class AuthorRepository : IAuthorRepository
+public class AuthorRepository(LibraryContext context) : IAuthorRepository
 {
-    private static readonly List<Author> _authors = new List<Author>();
-    private static int _nextId = 1;
+    private readonly LibraryContext _context = context;
 
-    public IEnumerable<Author> GetAll()
+    public async Task<IEnumerable<Author>> GetAllAsync()
     {
-        return _authors.ToList().AsReadOnly();
+        return await _context.Authors.AsNoTracking().ToListAsync();
     }
 
-    public Author? GetById(int id)
+    public async Task<Author?> GetByIdAsync(int id)
     {
-        var user = _authors.FirstOrDefault(x => x.Id == id);
-        return user;
+        return await _context.Authors.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public int Create(Author author)
+    public async Task<int> CreateAsync(Author author)
     {
-        author.Id = _nextId++;
-        _authors.Add(author);
-        return author.Id;
+        var entity = _context.Authors.Add(author).Entity;
+        await _context.SaveChangesAsync();
+        return entity.Id;
     }
 
-    public bool Update(Author author)
+    public async Task<bool> UpdateAsync(Author author)
     {
-        int id = _authors.FindIndex(x => x.Id == author.Id);
-        if (id != -1) { 
-            _authors[id] = author;
-            return true;
-        }
-        return false;
+        var existing = await _context.Authors.FindAsync(author.Id);
+        if (existing == null) return false;
+
+        _context.Entry(existing).CurrentValues.SetValues(author);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var removed = _authors.RemoveAll(x => x.Id == id) > 0;
-        return removed;
+        var rowsAffected = await _context.Authors.Where(x => x.Id == id).ExecuteDeleteAsync();
+        return rowsAffected > 0;
     }
 
-    public bool Exists(int id)
+    public async Task<bool> ExistsAsync(int id)
     {
-        return _authors.Any(x => x.Id == id);
+        return await _context.Authors.AnyAsync(x => x.Id == id);
     }
 }

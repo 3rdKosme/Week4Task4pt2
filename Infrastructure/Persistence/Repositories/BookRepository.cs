@@ -4,43 +4,40 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Week4Task4pt2.Infrastructure.Persistence.Repositories;
 
-public class BookRepository : IBookRepository
+public class BookRepository(LibraryContext context) : IBookRepository
 {
-    private static readonly List<Book> _books = new List<Book>();
-    private static int _nextId = 1;
+    private readonly LibraryContext _context = context;
 
-    public IEnumerable<Book> GetAll()
+    public async Task<IEnumerable<Book>> GetAllAsync()
     {
-        return _books.ToList().AsReadOnly();
+        return await _context.Books.AsNoTracking().ToListAsync();
     }
 
-    public Book? GetById(int id)
+    public async Task<Book?> GetByIdAsync(int id)
     {
-        var book = _books.FirstOrDefault(x => x.Id == id);
-        return book;
+        return await _context.Books.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public int Create(Book book)
+    public async Task<int> CreateAsync(Book book)
     {
-        book.Id = _nextId++;
-        _books.Add(book);
-        return book.Id;
+        var entity = _context.Books.Add(book).Entity;
+        await _context.SaveChangesAsync();
+        return entity.Id;
     }
 
-    public bool Update(Book book)
+    public async Task<bool> UpdateAsync(Book book)
     {
-        int id = _books.FindIndex(x => x.Id == book.Id);
-        if (id != -1)
-        {
-            _books[id] = book;
-            return true;
-        }
-        return false;
+        var existing = await _context.Books.FindAsync(book.Id);
+        if (existing == null) return false;
+
+        _context.Entry(existing).CurrentValues.SetValues(book);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        var removed = _books.RemoveAll(x => x.Id == id) > 0;
-        return removed;
+        var rowsAffected = await _context.Books.Where(x => x.Id == id).ExecuteDeleteAsync();
+        return rowsAffected > 0;
     }
 }

@@ -1,10 +1,11 @@
 using Microsoft.OpenApi.Models;
-using Week4Task4pt2.Application.Services;
-using Week4Task4pt2.Application.Interfaces;
-using Week4Task4pt2.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Diagnostics;
+using Week4Task4pt2.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplicationServices();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -17,11 +18,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Система управления библиотекой"
     });
 });
-builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
-builder.Services.AddScoped<IBookRepository, BookRepository>();
-builder.Services.AddScoped<IAuthorService, AuthorService>();
 
-builder.Services.AddScoped<IBookService, BookService>();
 
 var app = builder.Build();
 

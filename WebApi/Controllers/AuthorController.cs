@@ -12,19 +12,19 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     private readonly IAuthorService _authorService = authorService;
 
     [HttpGet]
-    public ActionResult<IEnumerable<Author>> GetAllAuthors()
+    public async Task<ActionResult<IEnumerable<Author>>> GetAllAuthorsAsync()
     {
-        var authors = _authorService.GetAllAuthors();
+        var authors = await _authorService.GetAllAuthorsAsync();
         return Ok(authors);
     }
 
     [HttpGet("{id:int}")]
-    public ActionResult<Author> GetAuthorById(int id)
+    public async Task<ActionResult<Author>> GetAuthorByIdAsync(int id)
     {
         Author? author;
         try
         {
-            author = _authorService.GetAuthorById(id);
+            author = await _authorService.GetAuthorByIdAsync(id);
         } catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
@@ -37,7 +37,7 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<int> CreateAuthor(CreateAuthorDTO dto)
+    public async Task<ActionResult<int>> CreateAuthorAsync(CreateAuthorDTO dto)
     {
         if (!ModelState.IsValid)
         {
@@ -46,18 +46,18 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
         int id;
         try
         {
-            id = _authorService.AddAuthor(dto);
+            id = await _authorService.AddAuthorAsync(dto);
         }
         catch(ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
 
-        return CreatedAtAction(nameof(GetAuthorById), new { id }, new { Id = id, Name = dto.Name, DateOfBirth = dto.DateOfBirth });
+        return CreatedAtAction(nameof(GetAuthorByIdAsync), new { id }, new { Id = id, dto.Name, dto.DateOfBirth });
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult UpdateAuthor(UpdateAuthorDTO dto, int id)
+    public async Task<IActionResult> UpdateAuthorAsync(UpdateAuthorDTO dto, int id)
     {
         if (!ModelState.IsValid)
         {
@@ -66,7 +66,7 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
         bool updated;
         try
         {
-            updated = _authorService.UpdateAuthor(dto, id);
+            updated = await _authorService.UpdateAuthorAsync(dto, id);
         }
         catch (ArgumentException ex) { 
             return BadRequest(ex.Message);
@@ -78,9 +78,9 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult DeleteAuthor(int id)
+    public async Task<IActionResult> DeleteAuthorAsync(int id)
     {
-        var deleted = _authorService.DeleteAuthor(id);
+        var deleted = await _authorService.DeleteAuthorAsync(id);
 
         if (!deleted)
         {
