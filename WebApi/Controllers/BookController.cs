@@ -12,19 +12,19 @@ public class BookController(IBookService bookService) : ControllerBase
     private readonly IBookService _bookService = bookService;
 
     [HttpGet]
-    public ActionResult<IEnumerable<Book>> GetAllBooks()
+    public async Task<ActionResult<IEnumerable<Book>>> GetAllBooksAsync()
     {
-        var books = _bookService.GetAllBooks();
+        var books = await _bookService.GetAllBooksAsync();
         return Ok(books);
     }
 
     [HttpGet("{id:int}")]
-    public ActionResult<Book> GetBookById(int id)
+    public async Task<ActionResult<Book>> GetBookByIdAsync(int id)
     {
         Book? book;
         try
         {
-            book = _bookService.GetBookById(id);
+            book = await _bookService.GetBookByIdAsync(id);
         }
         catch (ArgumentException ex)
         {
@@ -39,7 +39,7 @@ public class BookController(IBookService bookService) : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<int> CreateBook(CreateBookDTO dto)
+    public async Task<ActionResult<int>> CreateBookAsync(CreateBookDTO dto)
     {
         if (!ModelState.IsValid)
         {
@@ -48,17 +48,17 @@ public class BookController(IBookService bookService) : ControllerBase
         int id;
         try
         {
-            id = _bookService.AddBook(dto);
+            id = await _bookService.AddBookAsync(dto);
         }
         catch (ArgumentException ex) { 
             return BadRequest(ex.Message);
         }
 
-        return CreatedAtAction(nameof(GetBookById), new { id }, new { Id = id, Title = dto.Title, PublishedYear = dto.PublishedYear, AuthorId = dto.AuthorId });
+        return CreatedAtAction(nameof(GetBookByIdAsync), new { id }, new { Id = id, dto.Title, dto.PublishedYear, dto.AuthorId });
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult UpdateBook(UpdateBookDTO dto, int id)
+    public async Task<IActionResult> UpdateBookAsync(UpdateBookDTO dto, int id)
     {
         if (!ModelState.IsValid)
         {
@@ -67,7 +67,7 @@ public class BookController(IBookService bookService) : ControllerBase
         bool updated;
         try
         {
-            updated = _bookService.UpdateBook(dto, id);
+            updated = await _bookService.UpdateBookAsync(dto, id);
         }
         catch (ArgumentException ex)
         {
@@ -82,9 +82,9 @@ public class BookController(IBookService bookService) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult DeleteBook(int id)
+    public async Task<IActionResult> DeleteBookAsync(int id)
     {
-        var deleted = _bookService.DeleteBook(id);
+        var deleted = await _bookService.DeleteBookAsync(id);
 
         if (!deleted) {
             return NotFound();

@@ -10,40 +10,37 @@ public class BookService(IBookRepository bookRepository, IAuthorRepository autho
     private readonly IBookRepository _bookRepository = bookRepository;
     private readonly IAuthorRepository _authorRepository = authorRepository;
 
-    public IEnumerable<Book> GetAllBooks()
+    public async Task<IEnumerable<Book>> GetAllBooksAsync()
     {
-        return _bookRepository.GetAll();
+        return await _bookRepository.GetAllAsync();
     }
 
-    public Book? GetBookById(int id)
+    public async Task<Book?> GetBookByIdAsync(int id)
     {
         ValidationHelper.CheckId(id);
-        return _bookRepository.GetById(id);
+        return await _bookRepository.GetByIdAsync(id);
     }
 
-    public int AddBook(CreateBookDTO dto)
+    public async Task<int> AddBookAsync(CreateBookDTO dto)
     {
-        CheckAuthor(dto.AuthorId);
         CheckYear(dto.PublishedYear);
+        await CheckAuthor(dto.AuthorId);
+
         var book = new Book
         {
             Title = dto.Title,
             PublishedYear = dto.PublishedYear,
             AuthorId = dto.AuthorId
         };
-        return _bookRepository.Create(book);
+        return await _bookRepository.CreateAsync(book);
     }
 
-    public bool UpdateBook(UpdateBookDTO dto, int id)
+    public async Task<bool> UpdateBookAsync(UpdateBookDTO dto, int id)
     {
-        var existingBook = _bookRepository.GetById(id);
+        var existingBook = await _bookRepository.GetByIdAsync(id) 
+            ?? throw new ArgumentNullException($" ниги с таким Id (id = {id}) не существует.");
 
-        if (existingBook == null)
-        {
-            throw new ArgumentNullException($" ниги с таким Id (id = {id}) не существует.");
-        }
-
-        if(dto.Title is not null)
+        if (dto.Title is not null)
         {
             existingBook.Title = dto.Title;
         }
@@ -54,28 +51,28 @@ public class BookService(IBookRepository bookRepository, IAuthorRepository autho
         }
         if(dto.AuthorId is not null)
         {
-            CheckAuthor((int)dto.AuthorId);
+            await CheckAuthor((int)dto.AuthorId);
             existingBook.AuthorId = (int)dto.AuthorId;
         }
 
-        return _bookRepository.Update(existingBook);
+        return await _bookRepository.UpdateAsync(existingBook);
     }
 
-    public bool DeleteBook(int id)
+    public async Task<bool> DeleteBookAsync(int id)
     {
         ValidationHelper.CheckId(id);
-        return _bookRepository.Delete(id);
+        return await _bookRepository.DeleteAsync(id);
     }
 
-    private void CheckAuthor(int id)
+    private async Task CheckAuthor(int id)
     {
-        if(!_authorRepository.Exists(id))
+        if(!await _authorRepository.ExistsAsync(id))
         {
             throw new ArgumentNullException($"јвтора с Id = {id} не существует.");
         }
     }
 
-    private void CheckYear(int year)
+    private static void CheckYear(int year)
     {
         if(year > DateTime.UtcNow.Year)
         {

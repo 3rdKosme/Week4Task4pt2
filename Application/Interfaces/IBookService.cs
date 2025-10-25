@@ -5,9 +5,9 @@ namespace Week4Task4pt2.Application.Interfaces;
 
 public interface IBookService
 {
-    public IEnumerable<Book> GetAllBooks();
-    public Book? GetBookById(int id);
-    public int AddBook(CreateBookDTO dto);
-    public bool UpdateBook(UpdateBookDTO dto, int id);
-    public bool DeleteBook(int id);
+    public Task<IEnumerable<Book>> GetAllBooksAsync();
+    public Task<Book?> GetBookByIdAsync(int id);
+    public Task<int> AddBookAsync(CreateBookDTO dto);
+    public Task<bool> UpdateBookAsync(UpdateBookDTO dto, int id);
+    public Task<bool> DeleteBookAsync(int id);
 }
