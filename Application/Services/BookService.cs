@@ -73,6 +73,12 @@ public class BookService(IBookRepository bookRepository, IAuthorRepository autho
         }
     }
 
+    public async Task<IEnumerable<Book>> GetBooksPublishedAfterAsync(int year)
+    {
+        CheckYear(year);
+        return await _bookRepository.GetPublishedAfterAsync(year);
+    }
+
     private static void CheckYear(int year)
     {
         if(year > DateTime.UtcNow.Year)

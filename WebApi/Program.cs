@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "Week4Task4pt2",
         Version = "v1",
-        Description = "������� ���������� �����������"
+        Description = "Система управления библиотекой"
     });
 });
 
@@ -44,22 +44,22 @@ app.Map("/error", (HttpContext context) =>
         Week4Task4pt2.Domain.Exceptions.ValidationException vEx => Results.Problem(
             detail: vEx.Message,
             statusCode: vEx.StatusCode,
-            title: "Validation failed."),
+            title: "Не удалось выполнить проверку."),
 
         NotFoundException nEx => Results.Problem(
             detail: nEx.Message,
             statusCode: nEx.StatusCode,
-            title: "Resource not found."),
+            title: "Ресурс не найден."),
 
         ArgumentException argEx => Results.Problem(
             detail: argEx.Message,
             statusCode: 400,
-            title: "Invalid argument."),
+            title: "Недопустимый аргумент."),
 
         _ => Results.Problem(
-            detail: ex?.Message ?? "An unexpected error occured",
+            detail: ex?.Message ?? "Произошла непредвиденная ошибка.",
             statusCode: 500,
-            title: "Internal Server Error.")
+            title: "Внутренняя ошибка сервера.")
     };
 });
 

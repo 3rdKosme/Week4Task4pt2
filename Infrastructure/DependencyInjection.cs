@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Week4Task4pt2.Application.Interfaces;
 using Week4Task4pt2.Application.Services;
 using Week4Task4pt2.Infrastructure.Persistence;

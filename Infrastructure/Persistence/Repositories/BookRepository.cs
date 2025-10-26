@@ -40,4 +40,9 @@ public class BookRepository(LibraryContext context) : IBookRepository
         var rowsAffected = await _context.Books.Where(b => b.Id == id).ExecuteDeleteAsync();
         return rowsAffected > 0;
     }
+
+    public async Task<IEnumerable<Book>> GetPublishedAfterAsync(int year)
+    {
+        return await _context.Books.Where(b => b.PublishedYear >= year).ToListAsync();
+    }
 }
