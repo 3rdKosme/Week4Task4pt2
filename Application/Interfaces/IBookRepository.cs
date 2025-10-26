@@ -9,4 +9,5 @@ public interface IBookRepository
     public Task<int> CreateAsync(Book book);
     public Task<bool> UpdateAsync(Book book);
     public Task<bool> DeleteAsync(int id);
+    public Task<IEnumerable<Book>> GetPublishedAfterAsync(int year);
 }

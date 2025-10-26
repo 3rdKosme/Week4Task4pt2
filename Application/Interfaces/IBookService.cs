@@ -10,4 +10,5 @@ public interface IBookService
     public Task<int> AddBookAsync(CreateBookDTO dto);
     public Task<bool> UpdateBookAsync(UpdateBookDTO dto, int id);
     public Task<bool> DeleteBookAsync(int id);
+    public Task<IEnumerable<Book>> GetBooksPublishedAfterAsync(int year);
 }

@@ -88,4 +88,18 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
         }
         return NoContent();
     }
+
+    [HttpGet("withBookCount")]
+    public async Task<ActionResult<IEnumerable<AuthorBookCountDTO>>> GetAuthorsWithBookCount()
+    {
+        var authors = await _authorService.GetAuthorsWithBookCountAsync();
+        return Ok(authors);
+    }
+
+    [HttpGet("search/{namePart}")]
+    public async Task<ActionResult<IEnumerable<Author>>> FindAuthorsByName(string namePart)
+    {
+        var authors = await _authorService.FindAuthorsByNameAsync(namePart);
+        return Ok(authors);
+    }
 }

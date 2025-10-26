@@ -91,4 +91,11 @@ public class BookController(IBookService bookService) : ControllerBase
         }
         return NoContent();
     }
+
+    [HttpGet("publishedAfter/{year:int}")]
+    public async Task<ActionResult<IEnumerable<Book>>> GetBooksPublishedAfter(int year)
+    {
+        var books = await _bookService.GetBooksPublishedAfterAsync(year);
+        return Ok(books);
+    }
 }

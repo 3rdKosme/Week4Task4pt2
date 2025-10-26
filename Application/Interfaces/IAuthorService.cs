@@ -10,4 +10,6 @@ public interface IAuthorService
     public Task<int> AddAuthorAsync(CreateAuthorDTO dto);
     public Task<bool> UpdateAuthorAsync(UpdateAuthorDTO dto, int id);
     public Task<bool> DeleteAuthorAsync(int id);
+    public Task<IEnumerable<AuthorBookCountDTO>> GetAuthorsWithBookCountAsync();
+    public Task<IEnumerable<Author>> FindAuthorsByNameAsync(string name);
 }

@@ -1,6 +1,7 @@
 using Week4Task4pt2.Domain.Models;
 using Week4Task4pt2.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Week4Task4pt2.Application.DTOs;
 
 namespace Week4Task4pt2.Infrastructure.Persistence.Repositories;
 
@@ -44,5 +45,20 @@ public class AuthorRepository(LibraryContext context) : IAuthorRepository
     public async Task<bool> ExistsAsync(int id)
     {
         return await _context.Authors.AnyAsync(a => a.Id == id);
+    }
+
+    public async Task<IEnumerable<AuthorBookCountDTO>> GetWithBooksCountAsync()
+    {
+        return await _context.Authors
+            .Select(a => new AuthorBookCountDTO 
+            {
+                Name = a.Name,
+                BookCount = a.Books.Count()
+            }).ToListAsync();
+    }
+
+    public async Task<IEnumerable<Author>> FindByNameAsync(string name)
+    {
+        return await _context.Authors.Where(a => a.Name.Contains(name)).ToListAsync();
     }
 }

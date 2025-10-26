@@ -57,6 +57,16 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
         return await _authorRepository.DeleteAsync(id);
     }
 
+    public async Task<IEnumerable<AuthorBookCountDTO>> GetAuthorsWithBookCountAsync()
+    {
+        return await _authorRepository.GetWithBooksCountAsync();
+    }
+
+    public async Task<IEnumerable<Author>> FindAuthorsByNameAsync(string namePart)
+    {
+        return await _authorRepository.FindByNameAsync(namePart.Trim());
+    }
+
     private static void CheckDateOfBirth(DateOnly dateOfBirth)
     {
         var minDate = new DateOnly(0001, 1, 1);
