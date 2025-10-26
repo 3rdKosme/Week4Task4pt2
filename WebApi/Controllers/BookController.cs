@@ -12,14 +12,14 @@ public class BookController(IBookService bookService) : ControllerBase
     private readonly IBookService _bookService = bookService;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Book>>> GetAllBooksAsync()
+    public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks()
     {
         var books = await _bookService.GetAllBooksAsync();
         return Ok(books);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Book>> GetBookByIdAsync(int id)
+    public async Task<ActionResult<Book>> GetBookById(int id)
     {
         Book? book;
         try
@@ -39,7 +39,7 @@ public class BookController(IBookService bookService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> CreateBookAsync(CreateBookDTO dto)
+    public async Task<ActionResult<int>> CreateBook(CreateBookDTO dto)
     {
         if (!ModelState.IsValid)
         {
@@ -54,11 +54,11 @@ public class BookController(IBookService bookService) : ControllerBase
             return BadRequest(ex.Message);
         }
 
-        return CreatedAtAction(nameof(GetBookByIdAsync), new { id }, new { Id = id, dto.Title, dto.PublishedYear, dto.AuthorId });
+        return CreatedAtAction(nameof(GetBookById), new { id }, new { Id = id, dto.Title, dto.PublishedYear, dto.AuthorId });
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateBookAsync(UpdateBookDTO dto, int id)
+    public async Task<IActionResult> UpdateBook(UpdateBookDTO dto, int id)
     {
         if (!ModelState.IsValid)
         {
@@ -82,7 +82,7 @@ public class BookController(IBookService bookService) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteBookAsync(int id)
+    public async Task<IActionResult> DeleteBook(int id)
     {
         var deleted = await _bookService.DeleteBookAsync(id);
 

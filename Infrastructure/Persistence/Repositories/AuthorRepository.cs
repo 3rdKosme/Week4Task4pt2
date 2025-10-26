@@ -15,7 +15,7 @@ public class AuthorRepository(LibraryContext context) : IAuthorRepository
 
     public async Task<Author?> GetByIdAsync(int id)
     {
-        return await _context.Authors.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        return await _context.Authors.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
     }
 
     public async Task<int> CreateAsync(Author author)
@@ -37,12 +37,12 @@ public class AuthorRepository(LibraryContext context) : IAuthorRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var rowsAffected = await _context.Authors.Where(x => x.Id == id).ExecuteDeleteAsync();
+        var rowsAffected = await _context.Authors.Where(a => a.Id == id).ExecuteDeleteAsync();
         return rowsAffected > 0;
     }
 
     public async Task<bool> ExistsAsync(int id)
     {
-        return await _context.Authors.AnyAsync(x => x.Id == id);
+        return await _context.Authors.AnyAsync(a => a.Id == id);
     }
 }
