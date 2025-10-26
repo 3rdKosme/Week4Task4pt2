@@ -1,7 +1,8 @@
 using Week4Task4pt2.Domain.Models;
+using Week4Task4pt2.Domain.Exceptions;
 using Week4Task4pt2.Application.Interfaces;
-using Week4Task4pt2.Helpers;
 using Week4Task4pt2.Application.DTOs;
+using Week4Task4pt2.Helpers;
 
 namespace Week4Task4pt2.Application.Services;
 
@@ -38,7 +39,7 @@ public class BookService(IBookRepository bookRepository, IAuthorRepository autho
     public async Task<bool> UpdateBookAsync(UpdateBookDTO dto, int id)
     {
         var existingBook = await _bookRepository.GetByIdAsync(id) 
-            ?? throw new ArgumentNullException($"Книги с таким Id (id = {id}) не существует.");
+            ?? throw new NotFoundException($"РљРЅРёРіРё СЃ С‚Р°РєРёРј Id (id = {id}) РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.");
 
         if (dto.Title is not null)
         {
@@ -68,7 +69,7 @@ public class BookService(IBookRepository bookRepository, IAuthorRepository autho
     {
         if(!await _authorRepository.ExistsAsync(id))
         {
-            throw new ArgumentNullException($"Автора с Id = {id} не существует.");
+            throw new NotFoundException($"РђРІС‚РѕСЂР° СЃ Id = {id} РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.");
         }
     }
 
@@ -76,7 +77,7 @@ public class BookService(IBookRepository bookRepository, IAuthorRepository autho
     {
         if(year > DateTime.UtcNow.Year)
         {
-            throw new ArgumentException($"Некорректный год публикации.");
+            throw new ValidationException($"РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РіРѕРґ РїСѓР±Р»РёРєР°С†РёРё.");
         }
     }
 }

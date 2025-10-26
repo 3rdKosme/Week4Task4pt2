@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Week4Task4pt2.Application.Interfaces;
 using Week4Task4pt2.Application.Services;
 using Week4Task4pt2.Infrastructure.Persistence;
+using Week4Task4pt2.Infrastructure.Persistence.Repositories;
 
 namespace Week4Task4pt2.Infrastructure;
 
@@ -18,8 +19,8 @@ public static class DependencyInjection
                 );
         });
 
-        services.AddScoped<IBookRepository, IBookRepository>();
-        services.AddScoped<IAuthorRepository, IAuthorRepository>();
+        services.AddScoped<IBookRepository, BookRepository>();
+        services.AddScoped<IAuthorRepository, AuthorRepository>();
 
         return services;
     }

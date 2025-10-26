@@ -12,14 +12,14 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     private readonly IAuthorService _authorService = authorService;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Author>>> GetAllAuthorsAsync()
+    public async Task<ActionResult<IEnumerable<Author>>> GetAllAuthors()
     {
         var authors = await _authorService.GetAllAuthorsAsync();
         return Ok(authors);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Author>> GetAuthorByIdAsync(int id)
+    public async Task<ActionResult<Author>> GetAuthorById(int id)
     {
         Author? author;
         try
@@ -37,7 +37,7 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> CreateAuthorAsync(CreateAuthorDTO dto)
+    public async Task<ActionResult<int>> CreateAuthor(CreateAuthorDTO dto)
     {
         if (!ModelState.IsValid)
         {
@@ -53,11 +53,11 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
             return BadRequest(ex.Message);
         }
 
-        return CreatedAtAction(nameof(GetAuthorByIdAsync), new { id }, new { Id = id, dto.Name, dto.DateOfBirth });
+        return CreatedAtAction(nameof(GetAuthorById), new { id }, new { Id = id, dto.Name, dto.DateOfBirth });
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateAuthorAsync(UpdateAuthorDTO dto, int id)
+    public async Task<IActionResult> UpdateAuthor(UpdateAuthorDTO dto, int id)
     {
         if (!ModelState.IsValid)
         {
@@ -78,7 +78,7 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteAuthorAsync(int id)
+    public async Task<IActionResult> DeleteAuthor(int id)
     {
         var deleted = await _authorService.DeleteAuthorAsync(id);
 

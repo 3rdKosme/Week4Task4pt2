@@ -15,7 +15,7 @@ public class BookRepository(LibraryContext context) : IBookRepository
 
     public async Task<Book?> GetByIdAsync(int id)
     {
-        return await _context.Books.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        return await _context.Books.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
     }
 
     public async Task<int> CreateAsync(Book book)
@@ -37,7 +37,7 @@ public class BookRepository(LibraryContext context) : IBookRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var rowsAffected = await _context.Books.Where(x => x.Id == id).ExecuteDeleteAsync();
+        var rowsAffected = await _context.Books.Where(b => b.Id == id).ExecuteDeleteAsync();
         return rowsAffected > 0;
     }
 }

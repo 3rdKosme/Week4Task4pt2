@@ -22,7 +22,7 @@ public class LibraryContext(DbContextOptions<LibraryContext> options) : DbContex
             entity.HasKey(b => b.Id);
             entity.Property(b => b.Title).IsRequired().HasMaxLength(200);
             entity.Property(b => b.PublishedYear).IsRequired();
-            entity.HasOne<Author>().WithMany().HasForeignKey(b => b.AuthorId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(b => b.Author).WithMany(a => a.Books).HasForeignKey(b => b.AuthorId).OnDelete(DeleteBehavior.Cascade);
         });
 
         var authors = new Author[]

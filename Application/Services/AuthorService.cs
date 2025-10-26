@@ -1,4 +1,5 @@
 using Week4Task4pt2.Domain.Models;
+using Week4Task4pt2.Domain.Exceptions;
 using Week4Task4pt2.Application.Interfaces;
 using Week4Task4pt2.Application.DTOs;
 using Week4Task4pt2.Helpers;
@@ -34,7 +35,7 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
     public async Task<bool> UpdateAuthorAsync(UpdateAuthorDTO dto, int id)
     {
         var existingAuthor = await _authorRepository.GetByIdAsync(id) 
-            ?? throw new ArgumentNullException($"Автора с ID = {id} не существует.");
+            ?? throw new NotFoundException($"РђРІС‚РѕСЂР° СЃ ID = {id} РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.");
 
         if (dto.Name is not null)
         {
@@ -62,7 +63,7 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
 
         if(dateOfBirth < minDate || dateOfBirth > DateOnly.FromDateTime(DateTime.Now))
         {
-            throw new ArgumentException("Некорректная дата рождения.");
+            throw new ValidationException("РќРµРєРѕСЂСЂРµРєС‚РЅР°СЏ РґР°С‚Р° СЂРѕР¶РґРµРЅРёСЏ.");
         }
     }
 }
