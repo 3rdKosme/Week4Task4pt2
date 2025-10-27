@@ -12,23 +12,16 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     private readonly IAuthorService _authorService = authorService;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Author>>> GetAllAuthors()
+    public async Task<ActionResult<IEnumerable<Author>>> GetAllAuthors(CancellationToken cancellationToken)
     {
-        var authors = await _authorService.GetAllAuthorsAsync();
+        var authors = await _authorService.GetAllAuthorsAsync(cancellationToken);
         return Ok(authors);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Author>> GetAuthorById(int id)
+    public async Task<ActionResult<Author>> GetAuthorById(int id,  CancellationToken cancellationToken)
     {
-        Author? author;
-        try
-        {
-            author = await _authorService.GetAuthorByIdAsync(id);
-        } catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var author = await _authorService.GetAuthorByIdAsync(id, cancellationToken);
         
         if (author == null) {
             return NotFound();
@@ -37,40 +30,28 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> CreateAuthor(CreateAuthorDTO dto)
+    public async Task<ActionResult<int>> CreateAuthor(CreateAuthorDTO dto,  CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        int id;
-        try
-        {
-            id = await _authorService.AddAuthorAsync(dto);
-        }
-        catch(ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+
+        var id = await _authorService.AddAuthorAsync(dto, cancellationToken);
 
         return CreatedAtAction(nameof(GetAuthorById), new { id }, new { Id = id, dto.Name, dto.DateOfBirth });
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateAuthor(UpdateAuthorDTO dto, int id)
+    public async Task<IActionResult> UpdateAuthor(UpdateAuthorDTO dto, int id,  CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        bool updated;
-        try
-        {
-            updated = await _authorService.UpdateAuthorAsync(dto, id);
-        }
-        catch (ArgumentException ex) { 
-            return BadRequest(ex.Message);
-        }
+        
+        var updated = await _authorService.UpdateAuthorAsync(dto, id,  cancellationToken);
+
         if (updated) { 
             return Ok();
         }
@@ -78,9 +59,9 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteAuthor(int id)
+    public async Task<IActionResult> DeleteAuthor(int id,  CancellationToken cancellationToken)
     {
-        var deleted = await _authorService.DeleteAuthorAsync(id);
+        var deleted = await _authorService.DeleteAuthorAsync(id,  cancellationToken);
 
         if (!deleted)
         {
@@ -90,16 +71,16 @@ public class AuthorController(IAuthorService authorService) : ControllerBase
     }
 
     [HttpGet("withBookCount")]
-    public async Task<ActionResult<IEnumerable<AuthorBookCountDTO>>> GetAuthorsWithBookCount()
+    public async Task<ActionResult<IEnumerable<AuthorBookCountDTO>>> GetAuthorsWithBookCount(CancellationToken cancellationToken)
     {
-        var authors = await _authorService.GetAuthorsWithBookCountAsync();
+        var authors = await _authorService.GetAuthorsWithBookCountAsync(cancellationToken);
         return Ok(authors);
     }
 
     [HttpGet("search/{namePart}")]
-    public async Task<ActionResult<IEnumerable<Author>>> FindAuthorsByName(string namePart)
+    public async Task<ActionResult<IEnumerable<Author>>> FindAuthorsByName(string namePart,  CancellationToken cancellationToken)
     {
-        var authors = await _authorService.FindAuthorsByNameAsync(namePart);
+        var authors = await _authorService.FindAuthorsByNameAsync(namePart, cancellationToken);
         return Ok(authors);
     }
 }

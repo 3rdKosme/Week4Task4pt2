@@ -17,7 +17,8 @@ public static class DependencyInjection
                     sqlServerOptions => sqlServerOptions.EnableRetryOnFailure()
                 );
         });
-
+        
+        services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         services.AddScoped<IBookRepository, BookRepository>();
         services.AddScoped<IAuthorRepository, AuthorRepository>();
 

@@ -2,12 +2,7 @@ using Week4Task4pt2.Domain.Models;
 
 namespace Week4Task4pt2.Application.Interfaces;
 
-public interface IBookRepository
+public interface IBookRepository : IBaseRepository<Book>
 {
-    public Task<IEnumerable<Book>> GetAllAsync();
-    public Task<Book?> GetByIdAsync(int id);
-    public Task<int> CreateAsync(Book book);
-    public Task<bool> UpdateAsync(Book book);
-    public Task<bool> DeleteAsync(int id);
-    public Task<IEnumerable<Book>> GetPublishedAfterAsync(int year);
+    public Task<IEnumerable<Book>> GetPublishedAfterAsync(int year, CancellationToken cancellationToken);
 }

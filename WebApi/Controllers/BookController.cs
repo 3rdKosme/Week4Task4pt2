@@ -12,24 +12,16 @@ public class BookController(IBookService bookService) : ControllerBase
     private readonly IBookService _bookService = bookService;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks()
+    public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks(CancellationToken cancellationToken)
     {
-        var books = await _bookService.GetAllBooksAsync();
+        var books = await _bookService.GetAllBooksAsync(cancellationToken);
         return Ok(books);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Book>> GetBookById(int id)
+    public async Task<ActionResult<Book>> GetBookById(int id, CancellationToken cancellationToken)
     {
-        Book? book;
-        try
-        {
-            book = await _bookService.GetBookByIdAsync(id);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var book = await _bookService.GetBookByIdAsync(id, cancellationToken);
 
         if (book == null)
         {
@@ -39,40 +31,27 @@ public class BookController(IBookService bookService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> CreateBook(CreateBookDTO dto)
+    public async Task<ActionResult<int>> CreateBook(CreateBookDTO dto, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        int id;
-        try
-        {
-            id = await _bookService.AddBookAsync(dto);
-        }
-        catch (ArgumentException ex) { 
-            return BadRequest(ex.Message);
-        }
+        
+        var id = await _bookService.AddBookAsync(dto, cancellationToken);
 
         return CreatedAtAction(nameof(GetBookById), new { id }, new { Id = id, dto.Title, dto.PublishedYear, dto.AuthorId });
     }
 
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateBook(UpdateBookDTO dto, int id)
+    public async Task<IActionResult> UpdateBook(UpdateBookDTO dto, int id, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
         }
-        bool updated;
-        try
-        {
-            updated = await _bookService.UpdateBookAsync(dto, id);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        
+        var updated = await _bookService.UpdateBookAsync(dto, id,  cancellationToken);
 
         if (updated)
         {
@@ -82,9 +61,9 @@ public class BookController(IBookService bookService) : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteBook(int id)
+    public async Task<IActionResult> DeleteBook(int id, CancellationToken cancellationToken)
     {
-        var deleted = await _bookService.DeleteBookAsync(id);
+        var deleted = await _bookService.DeleteBookAsync(id, cancellationToken);
 
         if (!deleted) {
             return NotFound();
@@ -93,9 +72,9 @@ public class BookController(IBookService bookService) : ControllerBase
     }
 
     [HttpGet("publishedAfter/{year:int}")]
-    public async Task<ActionResult<IEnumerable<Book>>> GetBooksPublishedAfter(int year)
+    public async Task<ActionResult<IEnumerable<Book>>> GetBooksPublishedAfter(int year, CancellationToken cancellationToken)
     {
-        var books = await _bookService.GetBooksPublishedAfterAsync(year);
+        var books = await _bookService.GetBooksPublishedAfterAsync(year, cancellationToken);
         return Ok(books);
     }
 }

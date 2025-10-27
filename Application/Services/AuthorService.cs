@@ -2,6 +2,7 @@ using Week4Task4pt2.Domain.Models;
 using Week4Task4pt2.Domain.Exceptions;
 using Week4Task4pt2.Application.Interfaces;
 using Week4Task4pt2.Application.DTOs;
+using Week4Task4pt2.Application.Constants;
 using Week4Task4pt2.Helpers;
 
 namespace Week4Task4pt2.Application.Services;
@@ -10,18 +11,18 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
 {
     private readonly IAuthorRepository _authorRepository = authorRepository;
 
-    public async Task<IEnumerable<Author>> GetAllAuthorsAsync()
+    public async Task<IEnumerable<Author>> GetAllAuthorsAsync(CancellationToken cancellationToken)
     {
-        return await _authorRepository.GetAllAsync();
+        return await _authorRepository.GetAllAsync(cancellationToken);
     }
 
-    public async Task<Author?> GetAuthorByIdAsync(int id)
+    public async Task<Author?> GetAuthorByIdAsync(int id, CancellationToken cancellationToken)
     {
         ValidationHelper.CheckId(id);
-        return await _authorRepository.GetByIdAsync(id);
+        return await _authorRepository.GetByIdAsync(id, cancellationToken);
     }
 
-    public async Task<int> AddAuthorAsync(CreateAuthorDTO dto)
+    public async Task<int> AddAuthorAsync(CreateAuthorDTO dto, CancellationToken cancellationToken)
     {
         CheckDateOfBirth((DateOnly)dto.DateOfBirth);
         var author = new Author
@@ -29,13 +30,13 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
             Name = dto.Name,
             DateOfBirth = dto.DateOfBirth
         };
-        return await _authorRepository.CreateAsync(author);
+        return await _authorRepository.CreateAsync(author, cancellationToken);
     }
 
-    public async Task<bool> UpdateAuthorAsync(UpdateAuthorDTO dto, int id)
+    public async Task<bool> UpdateAuthorAsync(UpdateAuthorDTO dto, int id, CancellationToken cancellationToken)
     {
-        var existingAuthor = await _authorRepository.GetByIdAsync(id) 
-            ?? throw new NotFoundException($"Автора с ID = {id} не существует.");
+        var existingAuthor = await _authorRepository.GetByIdAsync(id, cancellationToken) 
+            ?? throw new NotFoundException(ErrorMessages.Authors.NotFound);
 
         if (dto.Name is not null)
         {
@@ -48,23 +49,23 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
             existingAuthor.DateOfBirth = (DateOnly)dto.DateOfBirth;
         }
 
-        return await _authorRepository.UpdateAsync(existingAuthor);
+        return await _authorRepository.UpdateAsync(existingAuthor, cancellationToken);
     }
 
-    public async Task<bool> DeleteAuthorAsync(int id)
+    public async Task<bool> DeleteAuthorAsync(int id, CancellationToken cancellationToken)
     {
         ValidationHelper.CheckId(id);
-        return await _authorRepository.DeleteAsync(id);
+        return await _authorRepository.DeleteAsync(id, cancellationToken);
     }
 
-    public async Task<IEnumerable<AuthorBookCountDTO>> GetAuthorsWithBookCountAsync()
+    public async Task<IEnumerable<AuthorBookCountDTO>> GetAuthorsWithBookCountAsync(CancellationToken cancellationToken)
     {
-        return await _authorRepository.GetWithBooksCountAsync();
+        return await _authorRepository.GetWithBooksCountAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Author>> FindAuthorsByNameAsync(string namePart)
+    public async Task<IEnumerable<Author>> FindAuthorsByNameAsync(string namePart, CancellationToken cancellationToken)
     {
-        return await _authorRepository.FindByNameAsync(namePart.Trim());
+        return await _authorRepository.FindByNameAsync(namePart.Trim(), cancellationToken);
     }
 
     private static void CheckDateOfBirth(DateOnly dateOfBirth)
@@ -73,7 +74,7 @@ public class AuthorService(IAuthorRepository authorRepository) : IAuthorService
 
         if(dateOfBirth < minDate || dateOfBirth > DateOnly.FromDateTime(DateTime.Now))
         {
-            throw new ValidationException("Некорректная дата рождения.");
+            throw new ValidationException(ErrorMessages.Authors.IncorrectBirthDate);
         }
     }
 }

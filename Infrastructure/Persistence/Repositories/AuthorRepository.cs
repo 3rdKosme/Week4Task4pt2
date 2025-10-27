@@ -5,60 +5,27 @@ using Week4Task4pt2.Application.DTOs;
 
 namespace Week4Task4pt2.Infrastructure.Persistence.Repositories;
 
-public class AuthorRepository(LibraryContext context) : IAuthorRepository
+public class AuthorRepository(LibraryContext context) : BaseRepository<Author>(context), IAuthorRepository
 {
     private readonly LibraryContext _context = context;
-
-    public async Task<IEnumerable<Author>> GetAllAsync()
+    
+    public async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _context.Authors.AsNoTracking().ToListAsync();
+        return await _context.Authors.AnyAsync(a => a.Id == id, cancellationToken);
     }
 
-    public async Task<Author?> GetByIdAsync(int id)
-    {
-        return await _context.Authors.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
-    }
-
-    public async Task<int> CreateAsync(Author author)
-    {
-        var entity = _context.Authors.Add(author).Entity;
-        await _context.SaveChangesAsync();
-        return entity.Id;
-    }
-
-    public async Task<bool> UpdateAsync(Author author)
-    {
-        var existing = await _context.Authors.FindAsync(author.Id);
-        if (existing == null) return false;
-
-        _context.Entry(existing).CurrentValues.SetValues(author);
-        await _context.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<bool> DeleteAsync(int id)
-    {
-        var rowsAffected = await _context.Authors.Where(a => a.Id == id).ExecuteDeleteAsync();
-        return rowsAffected > 0;
-    }
-
-    public async Task<bool> ExistsAsync(int id)
-    {
-        return await _context.Authors.AnyAsync(a => a.Id == id);
-    }
-
-    public async Task<IEnumerable<AuthorBookCountDTO>> GetWithBooksCountAsync()
+    public async Task<IEnumerable<AuthorBookCountDTO>> GetWithBooksCountAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Authors
             .Select(a => new AuthorBookCountDTO 
             {
                 Name = a.Name,
                 BookCount = a.Books.Count()
-            }).ToListAsync();
+            }).ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Author>> FindByNameAsync(string name)
+    public async Task<IEnumerable<Author>> FindByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        return await _context.Authors.Where(a => a.Name.Contains(name)).ToListAsync();
+        return await _context.Authors.Where(a => a.Name.Contains(name)).ToListAsync(cancellationToken);
     }
 }
